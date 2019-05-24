@@ -7,7 +7,7 @@ package com.progmatic.labyrinthproject;
  */
 public class Coordinate {
     
-    private final int row, col;
+    private int row, col;
 
     public Coordinate(int col, int row) {
         this.row = row;
@@ -21,6 +21,16 @@ public class Coordinate {
     public int getCol() {
         return col;
     }
+
+    public void setRow(int move) {
+        this.row += move;
+    }
+
+    public void setCol(int move) {
+        this.col += move;
+    }
+    
+    
 
     @Override
     public boolean equals(Object obj) {
