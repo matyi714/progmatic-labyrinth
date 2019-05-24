@@ -36,7 +36,7 @@ public class LabyrinthImpl implements Labyrinth {
             Scanner sc = new Scanner(new File(fileName));
             width = Integer.parseInt(sc.nextLine());
             height = Integer.parseInt(sc.nextLine());
-
+            lab = new CellType[height][width];    
             for (int hh = 0; hh < height; hh++) {
                 String line = sc.nextLine();
                 for (int ww = 0; ww < width; ww++) {
@@ -46,14 +46,17 @@ public class LabyrinthImpl implements Labyrinth {
                             break;
                         case 'E':
                             lab[hh][ww] = CellType.END;
-                            endPosition = new Coordinate(hh, ww);
+                            endPosition = new Coordinate(ww, hh);
                             break;
                         case 'S':
                             lab[hh][ww] = CellType.START;
-                            playerPosition = new Coordinate(hh, ww);
+                            playerPosition = new Coordinate(ww, hh);
+                            break;
+                        case ' ':
+                            lab[hh][ww] = CellType.EMPTY;
                             break;
                         default:
-                            lab[hh][ww] = CellType.EMPTY;
+                            lab[hh][ww] = CellType.WALL;
                             break;
                     }
                 }
@@ -75,12 +78,12 @@ public class LabyrinthImpl implements Labyrinth {
 
     @Override
     public CellType getCellType(Coordinate c) throws CellException {
-            if ((c.getCol() > lab.length) || (c.getRow() > lab[0].length)) {
-                throw new CellException(c, "Túl messzire mentél");
-            } else {
-                CellType ct = lab[c.getCol()][c.getRow()];
-                return ct;
-            }
+        if ((c.getCol() > lab.length) || (c.getRow() > lab[0].length)) {
+            throw new CellException(c, "Túl messzire mentél");
+        } else {
+            CellType ct = lab[c.getCol()][c.getRow()];
+            return ct;
+        }
     }
 
     @Override
@@ -91,7 +94,13 @@ public class LabyrinthImpl implements Labyrinth {
 
     @Override
     public void setCellType(Coordinate c, CellType type) throws CellException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (c.getRow()>lab.length || c.getCol()>lab[0].length) {
+            throw  new CellException(c, "Próbáld újra");
+        }
+        if (type.equals(CellType.START)) {
+            playerPosition = c;
+        }
+        lab[c.getRow()][c.getCol()] = type;
     }
 
     @Override
@@ -101,9 +110,9 @@ public class LabyrinthImpl implements Labyrinth {
 
     @Override
     public boolean hasPlayerFinished() {
-        if (endPosition.equals(playerPosition)) {
+        if (endPosition.getCol()==playerPosition.getCol() && endPosition.getRow()== playerPosition.getRow()) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -113,10 +122,10 @@ public class LabyrinthImpl implements Labyrinth {
         List<Direction> posDir = new ArrayList<>();
         int y = playerPosition.getRow();
         int x = playerPosition.getCol();
-        int xlength = lab[0].length-1;
-        int ylength = lab.length-1;
-        if (x==0) {
-            if (y==0) {
+        int xlength = lab[0].length - 1;
+        int ylength = lab.length - 1;
+        if (x == 0) {
+            if (y == 0) {
                 if (!lab[1][0].equals(CellType.WALL)) {
                     posDir.add(Direction.SOUTH);
                 }
@@ -125,19 +134,19 @@ public class LabyrinthImpl implements Labyrinth {
                 }
                 return posDir;
             }
-            if (y==ylength) {
+            if (y == ylength) {
                 if (!lab[ylength][1].equals(CellType.WALL)) {
                     posDir.add(Direction.EAST);
                 }
-                if (!lab[ylength-1][0].equals(CellType.WALL)) {
+                if (!lab[ylength - 1][0].equals(CellType.WALL)) {
                     posDir.add(Direction.NORTH);
                 }
                 return posDir;
             }
-            if (!lab[y+1][0].equals(CellType.WALL)) {
+            if (!lab[y + 1][0].equals(CellType.WALL)) {
                 posDir.add(Direction.SOUTH);
             }
-            if (!lab[y-1][0].equals(CellType.WALL)) {
+            if (!lab[y - 1][0].equals(CellType.WALL)) {
                 posDir.add(Direction.NORTH);
             }
             if (!lab[y][1].equals(CellType.WALL)) {
@@ -145,41 +154,41 @@ public class LabyrinthImpl implements Labyrinth {
             }
             return posDir;
         }
-        if (x==xlength) {
-            if (y==0) {
+        if (x == xlength) {
+            if (y == 0) {
                 if (!lab[1][xlength].equals(CellType.WALL)) {
                     posDir.add(Direction.SOUTH);
                 }
-                if (!lab[0][xlength-1].equals(CellType.WALL)) {
+                if (!lab[0][xlength - 1].equals(CellType.WALL)) {
                     posDir.add(Direction.WEST);
                 }
                 return posDir;
             }
-            if (y==ylength) {
-                if (!lab[ylength][xlength-1].equals(CellType.WALL)) {
+            if (y == ylength) {
+                if (!lab[ylength][xlength - 1].equals(CellType.WALL)) {
                     posDir.add(Direction.WEST);
                 }
-                if (!lab[ylength-1][xlength].equals(CellType.WALL)) {
+                if (!lab[ylength - 1][xlength].equals(CellType.WALL)) {
                     posDir.add(Direction.NORTH);
                 }
                 return posDir;
             }
-            if (!lab[y+1][xlength].equals(CellType.WALL)) {
+            if (!lab[y + 1][xlength].equals(CellType.WALL)) {
                 posDir.add(Direction.SOUTH);
             }
-            if (!lab[y-1][xlength].equals(CellType.WALL)) {
+            if (!lab[y - 1][xlength].equals(CellType.WALL)) {
                 posDir.add(Direction.NORTH);
             }
-            if (!lab[y][xlength-1].equals(CellType.WALL)) {
+            if (!lab[y][xlength - 1].equals(CellType.WALL)) {
                 posDir.add(Direction.EAST);
             }
             return posDir;
         }
-        if (y==0) {
-            if (!lab[0][x+1].equals(CellType.WALL)) {
+        if (y == 0) {
+            if (!lab[0][x + 1].equals(CellType.WALL)) {
                 posDir.add(Direction.EAST);
             }
-            if (!lab[0][x-1].equals(CellType.WALL)) {
+            if (!lab[0][x - 1].equals(CellType.WALL)) {
                 posDir.add(Direction.WEST);
             }
             if (!lab[1][x].equals(CellType.WALL)) {
@@ -187,29 +196,29 @@ public class LabyrinthImpl implements Labyrinth {
             }
             return posDir;
         }
-        if (y==ylength) {
-            if (!lab[ylength][x+1].equals(CellType.WALL)) {
+        if (y == ylength) {
+            if (!lab[ylength][x + 1].equals(CellType.WALL)) {
                 posDir.add(Direction.EAST);
             }
-            if (!lab[ylength][x-1].equals(CellType.WALL)) {
+            if (!lab[ylength][x - 1].equals(CellType.WALL)) {
                 posDir.add(Direction.WEST);
             }
-            if (!lab[ylength-1][x].equals(CellType.WALL)) {
+            if (!lab[ylength - 1][x].equals(CellType.WALL)) {
                 posDir.add(Direction.NORTH);
             }
             return posDir;
         }
         if (true) {
-            if (!lab[y][x+1].equals(CellType.WALL)) {
+            if (!lab[y][x + 1].equals(CellType.WALL)) {
                 posDir.add(Direction.EAST);
             }
-            if (!lab[y][x-1].equals(CellType.WALL)) {
+            if (!lab[y][x - 1].equals(CellType.WALL)) {
                 posDir.add(Direction.WEST);
             }
-            if (!lab[y+1][x].equals(CellType.WALL)) {
+            if (!lab[y + 1][x].equals(CellType.WALL)) {
                 posDir.add(Direction.SOUTH);
             }
-            if (!lab[y-1][x].equals(CellType.WALL)) {
+            if (!lab[y - 1][x].equals(CellType.WALL)) {
                 posDir.add(Direction.NORTH);
             }
         }
@@ -219,11 +228,23 @@ public class LabyrinthImpl implements Labyrinth {
     @Override
     public void movePlayer(Direction direction) throws InvalidMoveException {
         List<Direction> l = possibleMoves();
-        int r = (int) (Math.random()*l.size());
-        if (l.get(r).equals(Direction.EAST)) {
-            playerPosition.setCol(1);
-        }if else
-        playerPosition.setCol(r);
+        if (!l.contains(direction)) {
+            throw new InvalidMoveException();
+        }
+        switch (direction) {
+            case EAST:
+                playerPosition.setCol(1);
+                break;
+            case WEST:
+                playerPosition.setCol(-1);
+                break;
+            case NORTH:
+                playerPosition.setRow(-1);
+                break;
+            default:
+                playerPosition.setRow(1);
+                break;
+        }
     }
 
 }
